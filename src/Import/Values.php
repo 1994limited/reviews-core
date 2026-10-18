@@ -71,7 +71,7 @@ final class Values
             return $value;
         }
 
-        return in_array(mb_strtolower((string) self::text($value)), ['1', 'true', 'yes', 'y', 'verified', 'verified buyer', 'verified purchase', 'published', 'approved'], true);
+        return in_array(mb_strtolower((string) self::text($value)), ['1', 'true', 'yes', 'y', 'verified', 'verified buyer', 'verified_buyer', 'verified purchase', 'buyer', 'published', 'approved'], true);
     }
 
     public static function email(mixed $value): ?string

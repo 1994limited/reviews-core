@@ -2,12 +2,11 @@
 
 namespace NineteenNinetyFour\Reviews\Core\Import\Formats;
 
-use NineteenNinetyFour\Reviews\Core\Import\ImportedReview;
 use NineteenNinetyFour\Reviews\Core\Import\Values;
 
 /**
  * Reviews' own export (`reviews:export`, and the Control Panel's), from the
- * Statamic or Craft version: for moving between sites or platforms.
+ * Statamic or Craft version: for moving between sites or platforms. Photos are files on the old site, so they don't come with it.
  */
 class ReviewsFormat extends ColumnFormat
 {
@@ -48,13 +47,5 @@ class ReviewsFormat extends ColumnFormat
     protected function published(mixed $value): bool
     {
         return Values::text($value) === 'approved';
-    }
-
-    public function map(array $row): ?ImportedReview
-    {
-        $review = parent::map($row);
-
-        // Photos are files on the old site; they don't come with an export.
-        return $review;
     }
 }
