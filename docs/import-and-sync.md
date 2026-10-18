@@ -17,7 +17,7 @@ Both turn another platform's reviews into `Import\ImportedReview` objects. The p
 | WooCommerce | `woocommerce` | comment_content, rating | SKU, URL or post ID |
 | Anything else | `generic` | a rating column | whichever product column it has |
 
-Ratings on other scales (out of 10, or 100) are brought to 1–5. A row without a rating is skipped, with its row number and why.
+Ratings are whole stars from 1 to 5 (a format on another scale, out of 10 or 100, says so and is brought down to five). A row without one is skipped, with its row number and why.
 
 ## Sync
 
