@@ -16,6 +16,27 @@ use NineteenNinetyFour\Reviews\Core\Import\Formats\YotpoFormat;
  */
 final class Formats
 {
+    /** Platforms' names, for "From Judge.me" beside a review. */
+    public const PLATFORMS = [
+        'feefo' => 'Feefo',
+        'judgeme' => 'Judge.me',
+        'reviewsio' => 'REVIEWS.io',
+        'shopify' => 'Shopify',
+        'trustpilot' => 'Trustpilot',
+        'woocommerce' => 'WooCommerce',
+        'yotpo' => 'Yotpo',
+    ];
+
+    /**
+     * The name to show beside a review from a platform. Null for Reviews'
+     * own export (a review moved from another site of yours) and for a
+     * spreadsheet, which could have come from anywhere.
+     */
+    public static function platformName(?string $key): ?string
+    {
+        return $key !== null ? (self::PLATFORMS[$key] ?? null) : null;
+    }
+
     /**
      * @return array<int, Format>
      */

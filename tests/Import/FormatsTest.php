@@ -2,6 +2,7 @@
 
 namespace NineteenNinetyFour\Reviews\Core\Tests\Import;
 
+use NineteenNinetyFour\Reviews\Core\Import\Formats;
 use NineteenNinetyFour\Reviews\Core\Import\Importer;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -77,5 +78,15 @@ class FormatsTest extends TestCase
         $this->assertSame('7', $reviews[0]->sourceId);
         $this->assertTrue($reviews[0]->published);
         $this->assertFalse($reviews[1]->published);
+    }
+
+    #[Test]
+    public function platforms_have_names_to_show_and_spreadsheets_don_t(): void
+    {
+        $this->assertSame('Judge.me', Formats::platformName('judgeme'));
+        $this->assertSame('Feefo', Formats::platformName('feefo'));
+        $this->assertNull(Formats::platformName('generic'));
+        $this->assertNull(Formats::platformName('reviews'));
+        $this->assertNull(Formats::platformName(null));
     }
 }
