@@ -1,0 +1,64 @@
+{
+    "name": "1994/reviews-core",
+    "description": "The framework-free core shared by Reviews for Craft CMS and Statamic: averages and star breakdowns, spam checks, captchas, review schema, importing from other review platforms, syncing from them on a schedule, and the default styles.",
+    "type": "library",
+    "license": "proprietary",
+    "homepage": "https://github.com/1994limited/reviews-core",
+    "keywords": [
+        "reviews",
+        "ratings",
+        "star rating",
+        "review schema",
+        "import"
+    ],
+    "authors": [
+        {
+            "name": "1994",
+            "email": "hello@1994.co.uk",
+            "homepage": "https://1994.co.uk"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/1994limited/reviews-core/issues",
+        "source": "https://github.com/1994limited/reviews-core"
+    },
+    "require": {
+        "php": "^8.2",
+        "ext-json": "*",
+        "ext-mbstring": "*"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.18",
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^11.5|^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "NineteenNinetyFour\\Reviews\\Core\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "NineteenNinetyFour\\Reviews\\Core\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "lint": "pint --test",
+        "analyse": "phpstan analyse --memory-limit=1G",
+        "boundaries": "php bin/check-boundaries"
+    },
+    "config": {
+        "platform": {
+            "php": "8.2.0"
+        },
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "extra": {
+        "branch-alias": {
+            "dev-main": "1.x-dev"
+        }
+    }
+}
