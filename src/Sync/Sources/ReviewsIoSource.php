@@ -45,7 +45,7 @@ class ReviewsIoSource extends PagedSource
         $key = $this->setting($config, 'api_key');
 
         foreach (['store_review', 'product_review'] as $type) {
-            for ($page = 1; $page <= self::MAX_PAGES; $page++) {
+            for ($page = 1; $page <= static::MAX_PAGES; $page++) {
                 $query = array_filter([
                     'store' => $store,
                     'type' => $type,
@@ -69,6 +69,10 @@ class ReviewsIoSource extends PagedSource
                 if ($items === [] || $page * 100 >= $total) {
                     break;
                 }
+            }
+
+            if ($page > static::MAX_PAGES) {
+                $this->tooManyPages();
             }
         }
     }

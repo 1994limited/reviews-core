@@ -56,7 +56,7 @@ class YotpoSource extends PagedSource
             throw new SyncException('Yotpo refused the app key and secret key.');
         }
 
-        for ($page = 1; $page <= self::MAX_PAGES; $page++) {
+        for ($page = 1; $page <= static::MAX_PAGES; $page++) {
             $query = array_filter(['count' => 100, 'page' => $page, 'since_updated_at' => $since?->format(DATE_ATOM)], fn ($value) => $value !== null);
             $reply = $this->get($http, sprintf(self::URL, rawurlencode($app)), $query, ['X-Yotpo-Token' => $token]);
             $items = is_array($reply['reviews'] ?? null) ? $reply['reviews'] : [];
@@ -70,6 +70,10 @@ class YotpoSource extends PagedSource
             if (count($items) < 100) {
                 return;
             }
+        }
+
+        if ($page > static::MAX_PAGES) {
+            $this->tooManyPages();
         }
     }
 

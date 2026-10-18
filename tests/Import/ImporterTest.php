@@ -3,6 +3,7 @@
 namespace NineteenNinetyFour\Reviews\Core\Tests\Import;
 
 use NineteenNinetyFour\Reviews\Core\Import\Importer;
+use NineteenNinetyFour\Reviews\Core\Import\Values;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -98,5 +99,18 @@ class ImporterTest extends TestCase
 
         $this->assertSame($a->fingerprint(), $b->fingerprint());
         $this->assertNotSame($a->fingerprint(), $c->fingerprint());
+    }
+
+    #[Test]
+    public function only_plain_web_addresses_are_kept_as_links(): void
+    {
+        $this->assertSame('https://example.com/r/1', Values::url(' https://example.com/r/1 '));
+        $this->assertSame('http://example.com', Values::url('http://example.com'));
+
+        foreach (['javascript:alert(1)', 'JAVASCRIPT://example.com/%0Aalert(1)', 'data:text/html,hi', '//example.com', 'https://user:pass@example.com', "https://example.com/\nx", 'https://'] as $bad) {
+            $this->assertNull(Values::url($bad), $bad);
+        }
+
+        $this->assertSame(['https://ok.example/a.jpg'], Values::urls(['javascript:x', 'https://ok.example/a.jpg']));
     }
 }

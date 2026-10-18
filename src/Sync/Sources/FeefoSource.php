@@ -50,7 +50,7 @@ class FeefoSource extends PagedSource
     {
         $merchant = $this->setting($config, 'merchant');
 
-        for ($page = 1; $page <= self::MAX_PAGES; $page++) {
+        for ($page = 1; $page <= static::MAX_PAGES; $page++) {
             $reply = $this->get($http, self::URL, ['merchant_identifier' => $merchant, 'page' => $page, 'page_size' => 100]);
             $items = is_array($reply['reviews'] ?? null) ? $reply['reviews'] : [];
 
@@ -64,6 +64,10 @@ class FeefoSource extends PagedSource
                 return;
             }
         }
+
+        if ($page > static::MAX_PAGES) {
+            $this->tooManyPages();
+        }
     }
 
     /**
@@ -73,7 +77,7 @@ class FeefoSource extends PagedSource
     protected function reviews(array $item): Generator
     {
         $name = (string) Values::text(self::dig($item, 'customer.display_name'));
-        $url = Values::text($item['url'] ?? null);
+        $url = Values::url($item['url'] ?? null);
 
         if (is_array($item['service'] ?? null) && ($rating = Values::rating(self::dig($item, 'service.rating.rating'))) !== null) {
             $service = $item['service'];
@@ -103,7 +107,7 @@ class FeefoSource extends PagedSource
                 sourceId: Values::text($product['id'] ?? null),
                 product: array_filter([
                     'sku' => Values::text(self::dig($product, 'product.sku')),
-                    'url' => Values::text(self::dig($product, 'product.url')),
+                    'url' => Values::url(self::dig($product, 'product.url')),
                     'name' => Values::text(self::dig($product, 'product.title')),
                 ]),
                 rating: $rating,

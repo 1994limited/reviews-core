@@ -27,6 +27,15 @@ abstract class PagedSource implements Source
     }
 
     /**
+     * The platform still had more after MAX_PAGES: stop, and say so, so the
+     * sync isn't taken as complete.
+     */
+    protected function tooManyPages(): never
+    {
+        throw new SyncException(sprintf('%s has more than %d pages of reviews: only part of them were fetched. Try again, or import the rest from an export.', $this->label(), static::MAX_PAGES));
+    }
+
+    /**
      * @param  array<string, string>  $config
      */
     protected function setting(array $config, string $key): string

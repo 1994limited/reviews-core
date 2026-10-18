@@ -82,6 +82,27 @@ final class Values
     }
 
     /**
+     * A web address to link to: http or https only, without a username or
+     * password in it. Null for anything else (a javascript: link, say).
+     */
+    public static function url(mixed $value): ?string
+    {
+        $text = self::text($value);
+
+        if ($text === null || preg_match('/[\x00-\x20\x7F]/', $text) || ! preg_match('~^https?://~i', $text)) {
+            return null;
+        }
+
+        $parts = parse_url($text);
+
+        if (! is_array($parts) || empty($parts['host']) || isset($parts['user']) || isset($parts['pass'])) {
+            return null;
+        }
+
+        return $text;
+    }
+
+    /**
      * Photo addresses, from a list, or text separated by commas, spaces or
      * new lines.
      *
@@ -92,7 +113,7 @@ final class Values
         $items = is_array($value) ? $value : (preg_split('/[\s,]+/', (string) self::text($value)) ?: []);
 
         return array_values(array_filter(array_map(
-            fn ($url) => is_string($url) && preg_match('~^https?://~i', trim($url)) ? trim($url) : null,
+            fn ($url) => self::url($url),
             $items,
         )));
     }

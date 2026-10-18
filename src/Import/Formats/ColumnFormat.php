@@ -79,7 +79,7 @@ abstract class ColumnFormat implements Format
             replyDate: Values::date($this->value($row, 'reply_date')),
             published: $published === null || Values::text($published) === null ? true : $this->published($published),
             photos: Values::urls($this->value($row, 'photos')),
-            url: Values::text($this->value($row, 'url')),
+            url: Values::url($this->value($row, 'url')),
         );
     }
 

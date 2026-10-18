@@ -191,4 +191,19 @@ class SyncTest extends TestCase
             }
         }
     }
+
+    #[Test]
+    public function running_out_of_pages_is_an_error_not_a_complete_sync(): void
+    {
+        $source = new class extends JudgeMeSource
+        {
+            public const MAX_PAGES = 2;
+        };
+        $page = ['reviews' => array_fill(0, 100, ['id' => 1, 'rating' => 5, 'product_handle' => 'x'])];
+
+        $this->expectException(SyncException::class);
+        $this->expectExceptionMessage('more than 2 pages');
+
+        $this->fetch($source, new FakeClient([$page, $page, $page]), ['shop_domain' => 'x', 'api_token' => 't']);
+    }
 }
