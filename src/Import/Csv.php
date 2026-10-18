@@ -58,6 +58,26 @@ final class Csv
     /**
      * A header as a key to match on: lower case, words joined by underscores.
      */
+    /**
+     * A value for a CSV someone may open in a spreadsheet: one starting with
+     * =, +, -, @, a tab or a carriage return gets a ' in front, so it's
+     * shown as text, never run as a formula.
+     */
+    public static function cell(mixed $value): string
+    {
+        $value = $value === null ? '' : (string) (is_bool($value) ? (int) $value : $value);
+
+        return preg_match('/^[=+\-@\t\r]/', $value) ? "'".$value : $value;
+    }
+
+    /**
+     * A value written by cell(), as it was.
+     */
+    public static function uncell(string $value): string
+    {
+        return preg_match("/^'[=+\\-@\\t\\r]/", $value) ? substr($value, 1) : $value;
+    }
+
     public static function key(string $header): string
     {
         return trim((string) preg_replace('/[^a-z0-9]+/', '_', mb_strtolower($header)), '_');

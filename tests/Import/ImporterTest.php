@@ -2,6 +2,7 @@
 
 namespace NineteenNinetyFour\Reviews\Core\Tests\Import;
 
+use NineteenNinetyFour\Reviews\Core\Import\Csv;
 use NineteenNinetyFour\Reviews\Core\Import\Importer;
 use NineteenNinetyFour\Reviews\Core\Import\Values;
 use PHPUnit\Framework\Attributes\Test;
@@ -112,5 +113,27 @@ class ImporterTest extends TestCase
         }
 
         $this->assertSame(['https://ok.example/a.jpg'], Values::urls(['javascript:x', 'https://ok.example/a.jpg']));
+    }
+
+    #[Test]
+    public function exported_cells_can_t_run_as_formulas_and_read_back_as_they_were(): void
+    {
+        $csv = Csv::class;
+
+        foreach (['=HYPERLINK("x")', '+1', '-2', '@SUM(A1)', "\tx", "\rx"] as $value) {
+            $this->assertSame("'".$value, $csv::cell($value));
+            $this->assertSame($value, $csv::uncell($csv::cell($value)));
+        }
+
+        $this->assertSame('Fine', $csv::cell('Fine'));
+        $this->assertSame("'quoted", $csv::uncell("'quoted"));
+
+        $file = "id,entry,entry_title,rating,title,body,name,email,status,verified,created_at,source_url\n"
+            ."r1,book,Book,4,\"'=HYPERLINK(\"\"x\"\")\",Body,\"'-Dash\",,approved,0,2026-01-01,https://example.com/r/1\n";
+        $review = (new Importer)->read($file)->reviews[0];
+
+        $this->assertSame('=HYPERLINK("x")', $review->title);
+        $this->assertSame('-Dash', $review->name);
+        $this->assertSame('https://example.com/r/1', $review->url);
     }
 }

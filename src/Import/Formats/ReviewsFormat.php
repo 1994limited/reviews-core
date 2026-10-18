@@ -2,6 +2,7 @@
 
 namespace NineteenNinetyFour\Reviews\Core\Import\Formats;
 
+use NineteenNinetyFour\Reviews\Core\Import\Csv;
 use NineteenNinetyFour\Reviews\Core\Import\Values;
 
 /**
@@ -41,7 +42,19 @@ class ReviewsFormat extends ColumnFormat
             'id' => ['id'],
             'product_id' => ['entry'],
             'product_name' => ['entry_title'],
+            'url' => ['source_url'],
         ];
+    }
+
+    /**
+     * The export guards cells against spreadsheet formulas (Csv::cell):
+     * undone here.
+     */
+    protected function value(array $row, string $field): mixed
+    {
+        $value = parent::value($row, $field);
+
+        return is_string($value) ? Csv::uncell($value) : $value;
     }
 
     protected function published(mixed $value): bool
