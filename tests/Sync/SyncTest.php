@@ -206,4 +206,18 @@ class SyncTest extends TestCase
 
         $this->fetch($source, new FakeClient([$page, $page, $page]), ['shop_domain' => 'x', 'api_token' => 't']);
     }
+
+    #[Test]
+    public function exactly_the_page_limit_is_a_complete_sync(): void
+    {
+        $source = new class extends JudgeMeSource
+        {
+            public const MAX_PAGES = 2;
+        };
+        $page = ['reviews' => array_fill(0, 100, ['id' => 1, 'rating' => 5, 'product_handle' => 'x'])];
+
+        $reviews = $this->fetch($source, new FakeClient([$page, $page, ['reviews' => []]]), ['shop_domain' => 'x', 'api_token' => 't']);
+
+        $this->assertCount(200, $reviews);
+    }
 }

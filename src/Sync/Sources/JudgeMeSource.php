@@ -45,9 +45,19 @@ class JudgeMeSource extends PagedSource
         $domain = $this->setting($config, 'shop_domain');
         $token = $this->setting($config, 'api_token');
 
-        for ($page = 1; $page <= static::MAX_PAGES; $page++) {
+        for ($page = 1; ; $page++) {
             $reply = $this->get($http, self::URL, ['shop_domain' => $domain, 'api_token' => $token, 'per_page' => 100, 'page' => $page]);
             $items = is_array($reply['reviews'] ?? null) ? $reply['reviews'] : [];
+
+            // One page past the limit: anything on it means there's more than
+            // can be fetched.
+            if ($page > static::MAX_PAGES) {
+                if ($items !== []) {
+                    $this->tooManyPages();
+                }
+
+                break;
+            }
 
             foreach ($items as $item) {
                 if (is_array($item) && ($review = $this->review($item)) !== null) {
@@ -58,10 +68,6 @@ class JudgeMeSource extends PagedSource
             if (count($items) < 100) {
                 return;
             }
-        }
-
-        if ($page > static::MAX_PAGES) {
-            $this->tooManyPages();
         }
     }
 

@@ -50,9 +50,19 @@ class FeefoSource extends PagedSource
     {
         $merchant = $this->setting($config, 'merchant');
 
-        for ($page = 1; $page <= static::MAX_PAGES; $page++) {
+        for ($page = 1; ; $page++) {
             $reply = $this->get($http, self::URL, ['merchant_identifier' => $merchant, 'page' => $page, 'page_size' => 100]);
             $items = is_array($reply['reviews'] ?? null) ? $reply['reviews'] : [];
+
+            // One page past the limit: anything on it means there's more than
+            // can be fetched.
+            if ($page > static::MAX_PAGES) {
+                if ($items !== []) {
+                    $this->tooManyPages();
+                }
+
+                break;
+            }
 
             foreach ($items as $item) {
                 yield from $this->reviews(is_array($item) ? $item : []);
@@ -63,10 +73,6 @@ class FeefoSource extends PagedSource
             if ($items === [] || $page >= $pages) {
                 return;
             }
-        }
-
-        if ($page > static::MAX_PAGES) {
-            $this->tooManyPages();
         }
     }
 

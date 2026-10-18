@@ -49,9 +49,19 @@ class TrustpilotSource extends PagedSource
         $unit = rawurlencode($this->setting($config, 'business_unit'));
         $key = $this->setting($config, 'api_key');
 
-        for ($page = 1; $page <= static::MAX_PAGES; $page++) {
+        for ($page = 1; ; $page++) {
             $reply = $this->get($http, self::BASE.'/business-units/'.$unit.'/reviews', ['apikey' => $key, 'page' => $page, 'perPage' => 100, 'orderBy' => 'createdat.desc']);
             $items = is_array($reply['reviews'] ?? null) ? $reply['reviews'] : [];
+
+            // One page past the limit: anything on it means there's more than
+            // can be fetched.
+            if ($page > static::MAX_PAGES) {
+                if ($items !== []) {
+                    $this->tooManyPages();
+                }
+
+                break;
+            }
 
             foreach ($items as $item) {
                 if (is_array($item) && ($review = $this->review($item, [])) !== null) {
@@ -64,16 +74,22 @@ class TrustpilotSource extends PagedSource
             }
         }
 
-        if ($page > static::MAX_PAGES) {
-            $this->tooManyPages();
-        }
-
         $skus = array_filter(array_map('trim', explode(',', (string) ($config['skus'] ?? ''))));
 
         foreach ($skus as $sku) {
-            for ($page = 1; $page <= static::MAX_PAGES; $page++) {
+            for ($page = 1; ; $page++) {
                 $reply = $this->get($http, self::BASE.'/product-reviews/business-units/'.$unit.'/reviews', ['apikey' => $key, 'sku' => $sku, 'page' => $page, 'perPage' => 100]);
                 $items = is_array($reply['productReviews'] ?? null) ? $reply['productReviews'] : (is_array($reply['reviews'] ?? null) ? $reply['reviews'] : []);
+
+                // One page past the limit: anything on it means there's more than
+                // can be fetched.
+                if ($page > static::MAX_PAGES) {
+                    if ($items !== []) {
+                        $this->tooManyPages();
+                    }
+
+                    break;
+                }
 
                 foreach ($items as $item) {
                     if (is_array($item) && ($review = $this->review($item, ['sku' => $sku])) !== null) {
@@ -84,10 +100,6 @@ class TrustpilotSource extends PagedSource
                 if (count($items) < 100) {
                     break;
                 }
-            }
-
-            if ($page > static::MAX_PAGES) {
-                $this->tooManyPages();
             }
         }
     }
