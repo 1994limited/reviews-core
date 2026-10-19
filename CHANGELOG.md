@@ -2,6 +2,12 @@
 
 All notable changes to `1994/reviews-core` are documented here. It follows semantic versioning: a minor or patch release doesn't break the public API.
 
+## 1.0.1 - 2026-10-19
+
+### Added
+- `resources/js/reviews.js`: what review forms need in the browser (the time check, and reCAPTCHA v3's token), for a site to serve as a file under a strict Content-Security-Policy. `Assets::scriptPath()` and `Assets::stylesheetPath()` say where it and the styles are.
+- reCAPTCHA v3's `inline_script` option: `false` leaves its inline script out, for sites serving `reviews.js`. It's `true` by default, so nothing changes for sites that don't.
+
 ## 1.0.0 - 2026-10-18
 
 ### Added

@@ -3,6 +3,7 @@
 namespace NineteenNinetyFour\Reviews\Core\Tests\Captcha;
 
 use InvalidArgumentException;
+use NineteenNinetyFour\Reviews\Core\Assets;
 use NineteenNinetyFour\Reviews\Core\Captcha\Captchas;
 use NineteenNinetyFour\Reviews\Core\Captcha\HCaptcha;
 use NineteenNinetyFour\Reviews\Core\Captcha\RecaptchaV3;
@@ -67,6 +68,15 @@ class CaptchaTest extends TestCase
         $captcha = new RecaptchaV3('site', 'secret', $http, ['score' => 0.7]);
 
         $this->assertStringContainsString('api.js?render=site', $captcha->widget());
+        $this->assertStringContainsString('grecaptcha.execute', $captcha->widget());
+
+        // Served as a file instead: no inline script, the key on the field.
+        $file = new RecaptchaV3('site', 'secret', new FakeClient, ['inline_script' => false]);
+        $this->assertStringNotContainsString('<script>', $file->widget());
+        $this->assertStringContainsString('data-reviews-recaptcha="site"', $file->widget());
+        $this->assertFileExists(Assets::scriptPath());
+        $this->assertStringContainsString('data-reviews-recaptcha', (string) file_get_contents(Assets::scriptPath()));
+        $this->assertFileExists(Assets::stylesheetPath());
         $this->assertTrue($captcha->verify('a'));
         $this->assertFalse($captcha->verify('b'));
         $this->assertFalse($captcha->verify('c'));

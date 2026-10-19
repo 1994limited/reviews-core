@@ -11,15 +11,25 @@ class RecaptchaV3 extends Recaptcha
 {
     public const ACTION = 'review';
 
+    /**
+     * The script that asks Google for a token as the form is sent: in
+     * resources/js/reviews.js, which a site serves as a file. Until it does
+     * (the "inline_script" option, true by default), it's written inline
+     * too, as before 1.0.1.
+     */
     public function widget(): string
     {
         $key = $this->attr($this->siteKey);
+        $html = '<input type="hidden" name="g-recaptcha-response" value="" data-reviews-captcha data-reviews-recaptcha="'.$key.'" data-reviews-action="'.self::ACTION.'">'
+            .'<script src="https://www.google.com/recaptcha/api.js?render='.$key.'" async defer></script>';
+
+        if (($this->options['inline_script'] ?? true) === false) {
+            return $html;
+        }
+
         $json = json_encode($this->siteKey, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 
-        // Asks Google for a token as the form is sent, then sends it.
-        return '<input type="hidden" name="g-recaptcha-response" value="" data-reviews-captcha data-reviews-recaptcha>'
-            .'<script src="https://www.google.com/recaptcha/api.js?render='.$key.'" async defer></script>'
-            .'<script>(function(){document.querySelectorAll("[data-reviews-recaptcha]").forEach(function(input){var form=input.form;if(!form||form.dataset.reviewsRecaptcha)return;form.dataset.reviewsRecaptcha=1;form.addEventListener("submit",function(event){if(input.value||!window.grecaptcha)return;event.preventDefault();grecaptcha.ready(function(){grecaptcha.execute('.$json.',{action:"'.self::ACTION.'"}).then(function(token){input.value=token;form.requestSubmit?form.requestSubmit():form.submit()})})})})})();</script>';
+        return $html.'<script>(function(){document.querySelectorAll("[data-reviews-recaptcha]").forEach(function(input){var form=input.form;if(!form||form.dataset.reviewsRecaptcha)return;form.dataset.reviewsRecaptcha=1;form.addEventListener("submit",function(event){if(input.value||!window.grecaptcha)return;event.preventDefault();grecaptcha.ready(function(){grecaptcha.execute('.$json.',{action:"'.self::ACTION.'"}).then(function(token){input.value=token;form.requestSubmit?form.requestSubmit():form.submit()})})})})})();</script>';
     }
 
     protected function passed(array $result): bool
